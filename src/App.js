@@ -6,9 +6,13 @@ import styles from './app.module.scss';
 
 export default class App extends React.Component {
 
-  componentDidMount() {
-    const sceneManager = new SceneManager(this.mount);
-    console.log(sceneManager)
+  async componentDidMount() {
+    const sceneManager = await new SceneManager(this.mount);
+    function render() {
+      requestAnimationFrame(render);
+      sceneManager.update();
+    }
+    render()
   }
 
 	render = () => (
