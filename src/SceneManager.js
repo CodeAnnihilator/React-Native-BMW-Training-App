@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import OBJLoader from 'three-obj-loader';
+import { RenderPass, EffectComposer, OutlinePass } from "./ddd";
 
 OBJLoader(THREE);
 
@@ -37,12 +38,13 @@ export default (function SceneManager () {
 				}
 			
 				function buildRender({width, height}) {
-					const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true}); 
 					const DPR = (window.devicePixelRatio) ? window.devicePixelRatio : 1;
+					const renderer = new THREE.WebGLRenderer( {
+						antialias: false,
+						alpha: true
+					} );
 					renderer.setPixelRatio(DPR);
 					renderer.setSize(width, height);
-					renderer.gammaInput = true;
-					renderer.gammaOutput = true;
 					return renderer;
 				}
 			
@@ -72,7 +74,22 @@ export default (function SceneManager () {
 				}
 
 				const leftSideButton = meshes[0].clone();
-				scene.add(leftSideButton)
+				var material = new THREE.MeshLambertMaterial( { color: 'white', transparent: true, depthWrite: false } );
+				this.mesh1 = new THREE.Mesh(leftSideButton.children[0].geometry, material );
+				this.mesh1.rotation.x = 0.9
+				scene.add(this.mesh1)
+
+				var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.7 );
+				hemiLight.position.set( 0, 500, 10 );
+				scene.add( hemiLight );
+
+				var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				dirLight.position.set( -1, 0.75, 1 );
+				dirLight.position.multiplyScalar( 50);
+				dirLight.name = "dirlight";
+				// dirLight.shadowCameraVisible = true;
+
+				scene.add( dirLight );
 
 				function createSceneObjects(scene) {
 					const sceneObjects = [
@@ -82,17 +99,51 @@ export default (function SceneManager () {
 				}
 				camera.position.z = 10;
 				node.appendChild(renderer.domElement);
+
+				var geometry = new THREE.SphereBufferGeometry( 2, 20, 20 );
+				var material = new THREE.MeshLambertMaterial();
+				material.color.setHSL( Math.random(), 1.0, 0.3 );
+				var mesh = new THREE.Mesh( geometry, material );
+
+				//scene.add(mesh)
+
+				this.compose = new EffectComposer(renderer);
+				var selectedObjects = [this.mesh1]
+				var renderPass = new RenderPass(scene, camera);
+				var outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera, selectedObjects);
+				outlinePass.renderToScreen = true;
+
+				this.compose.addPass(renderPass);
+				this.compose.addPass(outlinePass);
+				var params = {
+						edgeStrength: 2,
+						edgeGlow: 1,
+						edgeThickness: 3.0,
+						pulsePeriod: 0,
+						usePatternTexture: false
+				};
+				outlinePass.edgeStrength = params.edgeStrength;
+				outlinePass.edgeGlow = params.edgeGlow;
+				outlinePass.visibleEdgeColor.set('red');
+				outlinePass.hiddenEdgeColor.set('green');
+
+				this.compose.render(scene, camera)  
+
 				return this;
 			})();
 		}
 	
+		
 		update = function() {
 			const {clock, renderer, camera, scene} = privateProps.get(this);
 			const elapsedTime = clock.getElapsedTime();
 			for (let i = 0; i < this.sceneObjects.length; i++) {
 				this.sceneObjects[i].update(elapsedTime)
 			}
-			renderer.render(scene, camera)
+			this.mesh1.rotation.x += 0.01
+			this.mesh1.rotation.y += 0.01
+			this.mesh1.rotation.z += 0.01
+			this.compose.render(scene, camera)
 		}
 	}
 
