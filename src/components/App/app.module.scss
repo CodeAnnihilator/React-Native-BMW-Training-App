@@ -19,13 +19,93 @@
   color: white;
 }
 
+.loaderWrapper {
+  position: absolute;
+  width: 200px;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+}
+
+.loaderElement {
+  background-color: #485e69;
+  border-radius: 4px;
+  display: flex;
+  flex: 1;
+  margin: 0 2px;
+}
+
+.loaderValue {
+  height: 3px;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.textWrapper {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  left: 60px;
+  top: 30px;
+}
+
+.textHeader {
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: white;
+  opacity: 0.9;
+}
+
+.textDesc {
+  margin-top: 10px;
+  color: white;
+  font-size: 13px;
+  opacity: 0.8;
+  display: flex;
+}
+
+.arrow {
+  width: 11px;
+  margin-right: 7px;
+  // position: absolute;
+}
+
+.carImage {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  opacity: 0.1;
+}
+
+.scene {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+}
+
 .container {
-  background: linear-gradient(215deg, #ED553B, #20639B);
+  background: linear-gradient(215deg, #0E1F29, #27566B);
   background-size: 200% 200%;
   
   -webkit-animation: AnimationName 15s ease infinite;
   -moz-animation: AnimationName 15s ease infinite;
   animation: AnimationName 15s ease infinite;
+
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
 }
 
 @-webkit-keyframes AnimationName {

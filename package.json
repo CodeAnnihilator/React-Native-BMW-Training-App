@@ -16,6 +16,7 @@
     "three": "^0.108.0",
     "three-obj-loader": "^1.1.3",
     "three-obj-mtl-loader": "^1.0.3",
+    "three-orbitcontrols": "^2.102.2",
     "three-outlinepass": "^1.0.7",
     "three-subdivision-modifier": "^1.0.5",
     "threex": "^1.0.0"

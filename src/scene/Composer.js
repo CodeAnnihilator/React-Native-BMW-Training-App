@@ -10,7 +10,7 @@ export default class Composer {
 		this.scene = scene;
 		this.camera = camera;
 
-		const elements = [objects.get('left_button')]
+		const elements = [objects.get('main_button')]
 		const renderPass = new RenderPass(scene, camera);
 		const outlinePass = new OutlinePass(
 			new THREE.Vector2(width, height),
@@ -18,24 +18,24 @@ export default class Composer {
 			camera,
 			elements,
 		);
-		
+
 		outlinePass.renderToScreen = true;
 
 		this.composer.addPass(renderPass);
 		this.composer.addPass(outlinePass);
 
 		var params = {
-				edgeStrength: 2,
-				edgeGlow: 1,
-				edgeThickness: 3.0,
+				edgeStrength: 10,
+				edgeGlow: 5,
+				edgeThickness: 1.0,
 				pulsePeriod: 0,
-				usePatternTexture: false
+				usePatternTexture: false,
 		};
 
 		outlinePass.edgeStrength = params.edgeStrength;
 		outlinePass.edgeGlow = params.edgeGlow;
-		outlinePass.visibleEdgeColor.set('red');
-		outlinePass.hiddenEdgeColor.set('green'); 
+		outlinePass.visibleEdgeColor.set('#4AA1CE');
+		outlinePass.hiddenEdgeColor.set('#4AA1CE');
 	}
 
 	compose() {

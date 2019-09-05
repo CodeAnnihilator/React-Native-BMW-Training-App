@@ -713,8 +713,8 @@ THREE.OutlinePass.prototype = Object.assign( Object.create( THREE.Pass.prototype
 			renderer.clear();
 			renderer.render( this.scene, this.camera );
 
-			this.tempPulseColor1.copy( this.visibleEdgeColor );
-			this.tempPulseColor2.copy( this.hiddenEdgeColor );
+			// this.tempPulseColor1.copy( this.visibleEdgeColor );
+			// this.tempPulseColor2.copy( this.hiddenEdgeColor );
 
 			if ( this.pulsePeriod > 0 ) {
 
@@ -728,8 +728,8 @@ THREE.OutlinePass.prototype = Object.assign( Object.create( THREE.Pass.prototype
 			this.quad.material = this.edgeDetectionMaterial;
 			this.edgeDetectionMaterial.uniforms[ "maskTexture" ].value = this.renderTargetMaskDownSampleBuffer.texture;
 			this.edgeDetectionMaterial.uniforms[ "texSize" ].value = new THREE.Vector2( this.renderTargetMaskDownSampleBuffer.width, this.renderTargetMaskDownSampleBuffer.height );
-			this.edgeDetectionMaterial.uniforms[ "visibleEdgeColor" ].value = this.tempPulseColor1;
-			this.edgeDetectionMaterial.uniforms[ "hiddenEdgeColor" ].value = this.tempPulseColor2;
+			this.edgeDetectionMaterial.uniforms[ "visibleEdgeColor" ].value = this.visibleEdgeColor;
+        this.edgeDetectionMaterial.uniforms[ "hiddenEdgeColor" ].value = this.hiddenEdgeColor;
 			renderer.setRenderTarget( this.renderTargetEdgeBuffer1 );
 			renderer.clear();
 			renderer.render( this.scene, this.camera );
@@ -770,6 +770,8 @@ THREE.OutlinePass.prototype = Object.assign( Object.create( THREE.Pass.prototype
 			this.overlayMaterial.uniforms[ "edgeStrength" ].value = this.edgeStrength;
 			this.overlayMaterial.uniforms[ "edgeGlow" ].value = this.edgeGlow;
 			this.overlayMaterial.uniforms[ "usePatternTexture" ].value = this.usePatternTexture;
+			this.overlayMaterial.uniforms[ "visibleEdgeColor" ].value = this.visibleEdgeColor;
+      this.overlayMaterial.uniforms[ "hiddenEdgeColor" ].value = this.hiddenEdgeColor;
 
 
 			if ( maskActive ) renderer.context.enable( renderer.context.STENCIL_TEST );
@@ -859,28 +861,30 @@ THREE.OutlinePass.prototype = Object.assign( Object.create( THREE.Pass.prototype
 			`,
 
 			fragmentShader: `
-				varying vec2 vUv;\
-					uniform sampler2D maskTexture;\
-					uniform vec2 texSize;\
-					uniform vec3 visibleEdgeColor;\
-					uniform vec3 hiddenEdgeColor;\
-					\
-					void main() {\n\
-						vec2 invSize = 1.0 / texSize;\
-						vec4 uvOffset = vec4(1.0, 0.0, 0.0, 1.0) * vec4(invSize, invSize);\
-						vec4 c1 = texture2D( maskTexture, vUv + uvOffset.xy);\
-						vec4 c2 = texture2D( maskTexture, vUv - uvOffset.xy);\
-						vec4 c3 = texture2D( maskTexture, vUv + uvOffset.yw);\
-						vec4 c4 = texture2D( maskTexture, vUv - uvOffset.yw);\
-						float diff1 = (c1.r - c2.r)*0.5;\
-						float diff2 = (c3.r - c4.r)*0.5;\
-						float d = length( vec2(diff1, diff2) );\
-						float a1 = min(c1.g, c2.g);\
-						float a2 = min(c3.g, c4.g);\
-						float visibilityFactor = min(a1, a2);\
-						vec3 edgeColor = 1.0 - visibilityFactor > 0.001 ? visibleEdgeColor : hiddenEdgeColor;\
-						gl_FragColor = vec4(edgeColor, 1.0) * vec4(d);\
-					}
+			varying vec2 vUv;\
+			uniform sampler2D maskTexture;\
+			uniform vec2 texSize;\
+			uniform vec3 visibleEdgeColor;\
+			uniform vec3 hiddenEdgeColor;\
+			\
+			void main() {\n\
+				vec2 invSize = 1.0 / texSize;\
+				vec4 uvOffset = vec4(1.0, 0.0, 0.0, 1.0) * vec4(invSize, invSize);\
+				vec4 c1 = texture2D( maskTexture, vUv + uvOffset.xy);\
+				vec4 c2 = texture2D( maskTexture, vUv - uvOffset.xy);\
+				vec4 c3 = texture2D( maskTexture, vUv + uvOffset.yw);\
+				vec4 c4 = texture2D( maskTexture, vUv - uvOffset.yw);\
+				float diff1 = (c1.r - c2.r)*0.5;\
+				float diff2 = (c3.r - c4.r)*0.5;\
+				float d = length( vec2(diff1, diff2) );\
+				float a1 = min(c1.g, c2.g);\
+				float a2 = min(c3.g, c4.g);\
+				float visibilityFactor = min(a1, a2);\
+				vec3 visible = vec3(1.0, 0.0, 0.0);\
+				vec3 hidden = vec3(0.0, 1.0, 0.0);\
+				vec3 edgeColor = 1.0 - visibilityFactor > 0.001 ? visible : hidden;\
+				gl_FragColor = vec4(edgeColor, 1.0) * vec4(d);\
+			}
 			`
 		} );
 
@@ -1031,6 +1035,7 @@ THREE.OutlinePass.prototype = Object.assign( Object.create( THREE.Pass.prototype
 
 THREE.OutlinePass.BlurDirectionX = new THREE.Vector2( 1.0, 0.0 );
 THREE.OutlinePass.BlurDirectionY = new THREE.Vector2( 0.0, 1.0 );
+
 THREE.MaskPass = function ( scene, camera ) {
 
 	THREE.Pass.call( this );
