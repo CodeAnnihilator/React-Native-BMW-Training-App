@@ -1,6 +1,6 @@
 import React from 'react';
 
-import SceneManager from './SceneManager';
+import SceneManager from '../../scene/SceneManager';
 
 import styles from './app.module.scss';
 
